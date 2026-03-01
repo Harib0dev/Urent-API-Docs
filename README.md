@@ -6,4 +6,4 @@
 ## Документация
 
 Интерактивная спецификация доступна через Swagger UI:
-👉 https://harib0dev.github.io/urent-api-docs/
+👉 https://harib0dev.github.io/Urent-API-Docs/
