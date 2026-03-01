@@ -1,0 +1,1805 @@
+openapi: 3.1.0
+info:
+  title: Urent API (Unofficial, Reverse-Engineered)
+  version: 0.1.0
+  description: '⚠️ Неофициальная спецификация API Urent, составленная на основе анализа
+    сетевого трафика мобильного приложения и пользовательских логов.
+
+
+    - Базовый REST-шлюз: `https://app.urentbike.ru/gatewayclient/api`
+
+    - Авторизация: `Authorization: Bearer <JWT>` (RS256), issuer наблюдался: `https://service.urentbike.ru/identity`
+
+    - Клиент использует дополнительные заголовки `ur-*` и подпись `ur-request-data`
+    (алгоритм подписи намеренно не описывается).
+
+
+    **Важно:** эта спецификация предназначена для документирования наблюдаемого поведения.
+    Эндпоинты/поля могут отличаться в разных регионах/версиях приложения.
+
+    '
+servers:
+- url: https://app.urentbike.ru/gatewayclient/api
+  description: Production Gateway (observed)
+security:
+- bearerAuth: []
+tags:
+- name: Rental
+  description: Аренда и управление поездкой
+- name: Transports
+  description: Поиск и информация о транспорте
+- name: Zones
+  description: Зоны и геолокация
+- name: Profile
+  description: Профиль пользователя
+- name: Payments
+  description: Платежи и карты
+- name: Subscriptions
+  description: Подписки и пакеты минут
+- name: Powerbank
+  description: Повербанки
+- name: Misc
+  description: Прочие эндпоинты
+- name: Realtime
+  description: WebSocket / realtime (через расширения)
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Bearer JWT (наблюдался RS256).
+  parameters:
+    AcceptLanguage:
+      name: Accept-Language
+      in: header
+      required: false
+      schema:
+        type: string
+        example: ru
+      description: Язык клиента.
+    UserAgent:
+      name: User-Agent
+      in: header
+      required: false
+      schema:
+        type: string
+        example: UrentApp/1.91.0 (iOS)
+      description: User-Agent мобильного приложения.
+    UrLatitude:
+      name: ur-latitude
+      in: header
+      required: false
+      schema:
+        type: number
+        format: double
+        example: 55.7558
+      description: Широта устройства (клиентский контекст).
+    UrLongitude:
+      name: ur-longitude
+      in: header
+      required: false
+      schema:
+        type: number
+        format: double
+        example: 37.6173
+      description: Долгота устройства (клиентский контекст).
+    UrDeviceRegion:
+      name: ur-device-region
+      in: header
+      required: false
+      schema:
+        type: string
+        example: RU
+      description: Регион устройства.
+    UrTimeZone:
+      name: ur-time-zone
+      in: header
+      required: false
+      schema:
+        type: string
+        example: GMT+3
+      description: Часовой пояс устройства.
+    UrRequestVersion:
+      name: ur-request-version
+      in: header
+      required: false
+      schema:
+        type: string
+        example: v2
+      description: Версия клиентского протокола (наблюдалась `v2`).
+    UrRequestData:
+      name: ur-request-data
+      in: header
+      required: false
+      schema:
+        type: string
+        example: 89D026A8BA79...
+      description: Подпись запроса (хеш/сигнатура). Алгоритм подписи не описывается.
+    EnvironmentInfo:
+      name: environment-info
+      in: header
+      required: false
+      schema:
+        type: string
+        example: '{"device":"iPhone"}'
+      description: Служебная информация окружения (часто JSON-строка).
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        code:
+          type:
+          - string
+          - integer
+      additionalProperties: true
+    OrderMakeRequest:
+      type: object
+      required:
+      - scooter_id
+      - tariff_id
+      - latitude
+      - longitude
+      properties:
+        scooter_id:
+          type: string
+          example: S.123
+        tariff_id:
+          type: string
+          example: basic
+        latitude:
+          type: number
+          format: double
+          example: 55.7558
+        longitude:
+          type: number
+          format: double
+          example: 37.6173
+    OrderMakeResponse:
+      type: object
+      properties:
+        order_id:
+          type: string
+          example: ORD12345
+        status:
+          type: string
+          example: created
+        start_time:
+          type: string
+          format: date-time
+      additionalProperties: true
+    OrderIdRequest:
+      type: object
+      required:
+      - order_id
+      properties:
+        order_id:
+          type: string
+          example: ORD12345
+    OrderEndResponse:
+      type: object
+      properties:
+        order_id:
+          type: string
+        status:
+          type: string
+          example: ended
+        total_cost:
+          type: number
+          example: 150.0
+        currency:
+          type: string
+          example: RUB
+      additionalProperties: true
+    Transport:
+      type: object
+      properties:
+        scooter_id:
+          type: string
+          example: S.123
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        type:
+          type: string
+          example: scooter
+        battery_level:
+          type: integer
+          minimum: 0
+          maximum: 100
+      additionalProperties: true
+    PaymentOptionsResponse:
+      type: object
+      properties:
+        availableLinkCard:
+          type: boolean
+        enableBankCardVerification:
+          type: boolean
+        recurringAps:
+          type: array
+          items:
+            type: string
+        replenishmentAps:
+          type: array
+          items:
+            type: string
+      additionalProperties: true
+    Card:
+      type: object
+      properties:
+        card_id:
+          type: string
+          example: card_123
+        last4:
+          type: string
+          example: '1234'
+        brand:
+          type: string
+          example: visa
+        is_default:
+          type: boolean
+      additionalProperties: true
+    PromocodeRequest:
+      type: object
+      required:
+      - promocode
+      properties:
+        promocode:
+          type: string
+          example: FREE2025
+  responses:
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+paths:
+  /v1/order/make:
+    post:
+      summary: Старт аренды (создать заказ)
+      tags:
+      - Rental
+      parameters:
+      - &id001
+        $ref: '#/components/parameters/AcceptLanguage'
+      - &id002
+        $ref: '#/components/parameters/UserAgent'
+      - &id003
+        $ref: '#/components/parameters/UrLatitude'
+      - &id004
+        $ref: '#/components/parameters/UrLongitude'
+      - &id005
+        $ref: '#/components/parameters/UrDeviceRegion'
+      - &id006
+        $ref: '#/components/parameters/UrTimeZone'
+      - &id007
+        $ref: '#/components/parameters/UrRequestVersion'
+      - &id008
+        $ref: '#/components/parameters/UrRequestData'
+      - &id009
+        $ref: '#/components/parameters/EnvironmentInfo'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderMakeResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      description: Создаёт заказ на старт аренды. На практике сервер сверяет координаты
+        из body/query и заголовков `ur-latitude/ur-longitude` и может требовать `ur-request-data`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderMakeRequest'
+            examples:
+              example:
+                value:
+                  scooter_id: S.123
+                  tariff_id: basic
+                  latitude: 55.7558
+                  longitude: 37.6173
+  /v1/order/end:
+    post:
+      summary: Завершить аренду
+      tags:
+      - Rental
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderEndResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderIdRequest'
+  /v1/orders/wait:
+    post:
+      summary: Пауза аренды
+      tags:
+      - Rental
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderIdRequest'
+  /v1/orders/continue:
+    post:
+      summary: Продолжить аренду (снять с паузы)
+      tags:
+      - Rental
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderIdRequest'
+  /v2/order/photo:
+    post:
+      summary: Загрузить фото после завершения поездки
+      tags:
+      - Rental
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - order_id
+              - photo
+              properties:
+                order_id:
+                  type: string
+                  example: ORD12345
+                photo:
+                  type: string
+                  format: binary
+  /v6/transports:
+    get:
+      summary: Поиск транспорта в радиусе
+      tags:
+      - Transports
+      parameters:
+      - name: includeEmptyParkings
+        in: query
+        required: true
+        schema:
+          type: boolean
+          example: true
+      - name: latitude
+        in: query
+        required: true
+        schema:
+          type: number
+          format: double
+          example: 55.7558
+      - name: longitude
+        in: query
+        required: true
+        schema:
+          type: number
+          format: double
+          example: 37.6173
+      - name: locationLat
+        in: query
+        required: true
+        schema:
+          type: number
+          format: double
+          example: 55.7558
+      - name: locationLng
+        in: query
+        required: true
+        schema:
+          type: number
+          format: double
+          example: 37.6173
+      - name: radiusByMeters
+        in: query
+        required: true
+        schema:
+          type: integer
+          example: 500
+      - name: withEBikes
+        in: query
+        required: true
+        schema:
+          type: boolean
+          example: true
+      - name: zoom
+        in: query
+        required: true
+        schema:
+          type: integer
+          example: 16
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transport'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v3/transports/S.{scooter_id}:
+    get:
+      summary: Информация о транспорте по ID
+      tags:
+      - Transports
+      parameters:
+      - name: scooter_id
+        in: path
+        required: true
+        schema:
+          type: string
+          example: '123'
+        description: ID транспорта без префикса `S.` в пути.
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transport'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v2/bikes/models:
+    get:
+      summary: Список моделей транспорта
+      tags:
+      - Transports
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v3/zones/uses:
+    get:
+      summary: Активные зоны сервиса
+      tags:
+      - Zones
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v3/zones/rent:
+    get:
+      summary: Зоны, где доступна аренда
+      tags:
+      - Zones
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v5/zones/general:
+    get:
+      summary: Общие зоны/ограничения (например, скорость)
+      tags:
+      - Zones
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/location/geolocation:
+    get:
+      summary: Определение города по координатам
+      tags:
+      - Zones
+      parameters:
+      - name: lat
+        in: query
+        required: true
+        schema:
+          type: number
+          format: double
+          example: 55.7558
+      - name: lng
+        in: query
+        required: true
+        schema:
+          type: number
+          format: double
+          example: 37.6173
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/profile:
+    get:
+      summary: Профиль пользователя
+      tags:
+      - Profile
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/profile/device:
+    post:
+      summary: Привязать/обновить данные устройства
+      tags:
+      - Profile
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - device_id
+              - device_type
+              properties:
+                device_id:
+                  type: string
+                device_type:
+                  type: string
+                  enum:
+                  - ios
+                  - android
+  /v1/profile/my/activegoals:
+    get:
+      summary: Активные аренды/цели
+      tags:
+      - Profile
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/profile/my/referralinfo:
+    get:
+      summary: Реферальная информация
+      tags:
+      - Profile
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/profile/my/promoactions:
+    get:
+      summary: Доступные промоакции
+      tags:
+      - Profile
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/profile/promocode:
+    post:
+      summary: Активация промокода
+      tags:
+      - Profile
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PromocodeRequest'
+  /v2/payment/operations:
+    get:
+      summary: История операций
+      tags:
+      - Payments
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v2/places/payment_options:
+    get:
+      summary: Способы оплаты (payment options)
+      tags:
+      - Payments
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentOptionsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/cards:
+    get:
+      summary: Получить привязанные карты
+      tags:
+      - Payments
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Card'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/cards/withPendings:
+    get:
+      summary: Карты с незавершёнными операциями
+      tags:
+      - Payments
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Card'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/cards/{card_id}:
+    delete:
+      summary: Удалить (отвязать) карту
+      tags:
+      - Payments
+      parameters:
+      - name: card_id
+        in: path
+        required: true
+        schema:
+          type: string
+          example: card_123
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      description: В исходном markdown встречается ошибочный путь `cards/cards/{id}`
+        — корректнее использовать REST-подход `/v1/cards/{card_id}` (DELETE).
+  /v1/payment/acquiring_settings:
+    get:
+      summary: Настройки эквайринга
+      tags:
+      - Payments
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v2/payment/profile:
+    get:
+      summary: Платёжный профиль (в т.ч. промоистория)
+      tags:
+      - Payments
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/cloudpayments/card:
+    post:
+      summary: Привязать новую карту (CloudPayments)
+      tags:
+      - Payments
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - card_number
+              - exp_date
+              - cvv
+              properties:
+                card_number:
+                  type: string
+                  example: '4242424242424242'
+                exp_date:
+                  type: string
+                  example: 12/27
+                cvv:
+                  type: string
+                  example: '123'
+  /v1/cloudpayments/post3ds:
+    post:
+      summary: Завершить 3DS (CloudPayments)
+      tags:
+      - Payments
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - transaction_id
+              - pa_res
+              properties:
+                transaction_id:
+                  type: string
+                  example: tx_123
+                pa_res:
+                  type: string
+                  example: '...'
+  /v1/subscriptions/my:
+    get:
+      summary: Моя активная подписка
+      tags:
+      - Subscriptions
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v3/subscriptions/get_availables:
+    get:
+      summary: Доступные подписки
+      tags:
+      - Subscriptions
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v2/subscriptions/promo_banners:
+    get:
+      summary: Промо-баннеры подписок
+      tags:
+      - Subscriptions
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/customerMinutePass/my:
+    get:
+      summary: Мои пакеты минут
+      tags:
+      - Subscriptions
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/minutePass/availables:
+    get:
+      summary: Доступные пакеты минут
+      tags:
+      - Subscriptions
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/CustomerDailyPass/my:
+    get:
+      summary: Мой Daily Pass
+      tags:
+      - Subscriptions
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /powerbank/v1/activity:
+    get:
+      summary: Активные аренды повербанков
+      tags:
+      - Powerbank
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /powerbank/v1/models:
+    get:
+      summary: Модели повербанков
+      tags:
+      - Powerbank
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /powerbank/v1/stations:
+    get:
+      summary: Станции повербанков (поиск)
+      tags:
+      - Powerbank
+      parameters:
+      - name: latitude
+        in: query
+        required: true
+        schema:
+          type: number
+          format: double
+          example: 55.7558
+      - name: longitude
+        in: query
+        required: true
+        schema:
+          type: number
+          format: double
+          example: 37.6173
+      - name: locationLat
+        in: query
+        required: true
+        schema:
+          type: number
+          format: double
+          example: 55.7558
+      - name: locationLng
+        in: query
+        required: true
+        schema:
+          type: number
+          format: double
+          example: 37.6173
+      - name: radiusByMeters
+        in: query
+        required: true
+        schema:
+          type: integer
+          example: 500
+      - name: modelId
+        in: query
+        required: false
+        schema:
+          type: string
+          example: pb_1
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v2/activity:
+    get:
+      summary: Лимиты/активность (например, max_rentals)
+      tags:
+      - Misc
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/orders/aggregation:
+    get:
+      summary: Агрегация заказов (в т.ч. повербанк)
+      tags:
+      - Misc
+      parameters:
+      - name: locationLat
+        in: query
+        required: true
+        schema:
+          type: number
+          format: double
+          example: 55.7558
+      - name: locationLng
+        in: query
+        required: true
+        schema:
+          type: number
+          format: double
+          example: 37.6173
+      - name: transportType
+        in: query
+        required: true
+        schema:
+          type: string
+          example: powerbank
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/cities:
+    get:
+      summary: Список городов
+      tags:
+      - Zones
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/mobile/mtsidcheck:
+    get:
+      summary: Проверка MTS ID
+      tags:
+      - Misc
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /payment/cashback-balance:
+    get:
+      summary: Баланс кэшбэка
+      tags:
+      - Payments
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/places/my:
+    get:
+      summary: Место/депозит/лимиты (my place)
+      tags:
+      - Payments
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/weather/{locale}/{lat}/{lng}:
+    get:
+      summary: Погода (обнаружено в трафике)
+      tags:
+      - Misc
+      security: []
+      parameters:
+      - name: locale
+        in: path
+        required: true
+        schema:
+          type: string
+          example: ru_RU
+      - name: lat
+        in: path
+        required: true
+        schema:
+          type: string
+          example: '55.65'
+      - name: lng
+        in: path
+        required: true
+        schema:
+          type: string
+          example: '37.75'
+      - name: units
+        in: query
+        required: false
+        schema:
+          type: string
+          example: m
+      - name: include
+        in: query
+        required: false
+        schema:
+          type: string
+          example: current_observations,hourly_forecast,daily_forecast,now_links,severe_weather,next_hour_forecast
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+      description: Эндпоинт погоды встречался в пользовательском zip-архиве. Хост
+        может отличаться от gateway.
+  /ws:
+    get:
+      summary: WebSocket подключение (realtime)
+      tags:
+      - Realtime
+      security: []
+      parameters:
+      - name: authtoken
+        in: query
+        required: true
+        schema:
+          type: string
+          description: JWT (как query параметр)
+      responses:
+        '101':
+          description: Switching Protocols (WebSocket)
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      description: Наблюдалось подключение вида `/ws?authtoken=<JWT>`. Формат сообщений
+        зависит от клиента/версии и не стандартизирован в OpenAPI.
+      x-websocket: true

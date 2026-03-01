@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Urent API — документация</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist/swagger-ui.css" />
+
+  <style>
+    body {
+      margin: 0;
+      background: #f8f9fb;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    /* Убираем стандартную шапку Swagger */
+    .topbar {
+      display: none;
+    }
+
+    /* Центрируем контент */
+    #swagger-ui {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Улучшаем блок описания */
+    .swagger-ui .info {
+      margin-bottom: 40px;
+      padding: 20px 0;
+    }
+
+    .swagger-ui .info h1 {
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+
+    .swagger-ui .info p {
+      line-height: 1.7;
+      margin-bottom: 14px;
+      font-size: 15px;
+    }
+
+    /* Убираем серый фон у inline code */
+    .swagger-ui .info code {
+      background: transparent !important;
+      color: inherit !important;
+      padding: 0 !important;
+      border-radius: 0 !important;
+      font-size: inherit !important;
+    }
+
+    /* Немного воздуха между эндпоинтами */
+    .swagger-ui .opblock {
+      margin-bottom: 18px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="swagger-ui"></div>
+
+  <script src="https://unpkg.com/swagger-ui-dist/swagger-ui-bundle.js"></script>
+  <script>
+    window.onload = function() {
+      SwaggerUIBundle({
+        url: "./openapi.yaml",
+        dom_id: '#swagger-ui',
+        deepLinking: true,
+        presets: [
+          SwaggerUIBundle.presets.apis
+        ],
+        layout: "BaseLayout",
+        supportedSubmitMethods: [] // Отключаем live-запросы
+      });
+    };
+  </script>
+</body>
+</html>
