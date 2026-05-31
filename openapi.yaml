@@ -25,7 +25,7 @@ externalDocs:
   description: Swagger UI
   url: https://harib0dev.github.io/Urent-API-Docs/
 x-documentation:
-  source: reverse-engineered traffic observations
+  source: reverse-engineered traffic observations and Android APK static analysis
   safetyNote: Request signing algorithm and bypass techniques are intentionally undocumented.
   schemaPolicy: Unknown response fields are kept via additionalProperties until confirmed.
 servers:
@@ -3418,3 +3418,1661 @@ paths:
         на notification-хосте. Формат сообщений зависит от клиента/версии и не
         стандартизирован в OpenAPI.
       x-websocket: true
+
+  /v1/booking/make:
+    post:
+      summary: Создать бронирование транспорта
+      operationId: createBookingFromApk
+      tags:
+      - Rental
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_ordering/OrderingRepositoryImpl$bookBike).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+  /v1/booking/cancel:
+    post:
+      summary: Отменить бронирование транспорта
+      operationId: cancelBookingFromApk
+      tags:
+      - Rental
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_ordering/OrderingRepositoryImpl$cancelBook).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+  /v1/order/cancel:
+    post:
+      summary: Отменить активацию аренды
+      operationId: cancelOrderActivationFromApk
+      tags:
+      - Rental
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_ordering/OrderingRepositoryImpl$cancelActivation).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+  /v1/orders/my:
+    get:
+      summary: История заказов пользователя
+      operationId: listMyOrdersFromApk
+      tags:
+      - Rental
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_orders/OrdersRepositoryImpl$getOrders).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/orders/my/{order_id}:
+    get:
+      summary: Детали заказа пользователя
+      operationId: getMyOrderFromApk
+      tags:
+      - Rental
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_orders/OrdersRepositoryImpl$getOrder).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - name: order_id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Идентификатор заказа.
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/scooters/openlock/{scooter_id}:
+    post:
+      summary: Открыть замок транспорта
+      operationId: openScooterLockFromApk
+      tags:
+      - Rental
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_ordering/OrderingRepositoryImpl$openLock).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - name: scooter_id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Идентификатор транспорта.
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+  /v1/scooters/closelock/{scooter_id}:
+    post:
+      summary: Закрыть замок транспорта
+      operationId: closeScooterLockFromApk
+      tags:
+      - Rental
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_ordering/OrderingRepositoryImpl$closeLock).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - name: scooter_id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Идентификатор транспорта.
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+  /v6/transports/polygon:
+    get:
+      summary: Транспорт в полигоне карты
+      operationId: listTransportsByPolygonFromApk
+      tags:
+      - Transports
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_transport/TransportRepositoryImpl$getTransportsByPolygon).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v3/zones/lowspeed/{zone_id}:
+    get:
+      summary: Детали зоны ограничения скорости
+      operationId: getLowSpeedZoneFromApk
+      tags:
+      - Zones
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_zones/ZonesRepositoryImpl$getLowSpeedZoneDetails).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - name: zone_id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Идентификатор зоны.
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/customerMinutePass/buy:
+    post:
+      summary: Купить пакет минут
+      operationId: buyMinutePassFromApk
+      tags:
+      - Subscriptions
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (TariffPackageRepositoryImpl$buyTariffPackage).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+  /v1/customerMinutePass/buyByAps:
+    post:
+      summary: Купить пакет минут через APS
+      operationId: buyMinutePassByApsFromApk
+      tags:
+      - Subscriptions
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (TariffPackageRepositoryImpl$buyTariffPackageByAps).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+  /v1/customerMinutePass/buyWithUltraDiscount:
+    post:
+      summary: Купить пакет минут по спецпредложению
+      operationId: buyMinutePassWithUltraDiscountFromApk
+      tags:
+      - Subscriptions
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (TariffPackageRepositoryImpl$buyTariffPackageWithSpecOffer).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+  /v1/minutePass/bySpecOffer/{offer_id}:
+    get:
+      summary: Пакет минут по спецпредложению
+      operationId: getMinutePassBySpecOfferFromApk
+      tags:
+      - Subscriptions
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (TariffPackageRepositoryImpl$getSpecOffer).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - name: offer_id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Идентификатор спецпредложения.
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/CustomerDailyPass/buy:
+    post:
+      summary: Купить дневной пакет
+      operationId: buyDailyPassFromApk
+      tags:
+      - Subscriptions
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_daily_pass/DailyPassRepositoryImpl$buyDailyPass).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+  /v1/abonements:
+    get:
+      summary: Список абонементов
+      operationId: listAbonementsFromApk
+      tags:
+      - Subscriptions
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_abonements/AbonementsRepositoryImpl$getMyAbonements).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/dailyPass/available:
+    get:
+      summary: Доступные дневные пакеты
+      operationId: listAvailableDailyPassesFromApk
+      tags:
+      - Subscriptions
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_daily_pass/DailyPassRepositoryImpl$getAvailableDailyPasses).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/subscriptions/buy:
+    post:
+      summary: Купить подписку
+      operationId: buySubscriptionFromApk
+      tags:
+      - Subscriptions
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_subscription/SubscriptionRepositoryImpl).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+  /v1/subscriptions/cancel:
+    post:
+      summary: Отменить подписку
+      operationId: cancelSubscriptionFromApk
+      tags:
+      - Subscriptions
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_subscription/SubscriptionRepositoryImpl).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+  /v1/subscriptions/change_period:
+    post:
+      summary: Изменить период подписки
+      operationId: changeSubscriptionPeriodFromApk
+      tags:
+      - Subscriptions
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_subscription/SubscriptionRepositoryImpl).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+  /v1/subscriptions/renew:
+    post:
+      summary: Возобновить подписку
+      operationId: renewSubscriptionFromApk
+      tags:
+      - Subscriptions
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_subscription/SubscriptionRepositoryImpl).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+  /v1/pix/create:
+    post:
+      summary: Создать PIX-платёж
+      operationId: createPixPaymentFromApk
+      tags:
+      - Payments
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_pix_payment/PixPaymentRepositoryImpl$create).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+  /v1/pix/check-status/{payment_id}:
+    get:
+      summary: Проверить статус PIX-платежа
+      operationId: checkPixPaymentStatusFromApk
+      tags:
+      - Payments
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_pix_payment/PixPaymentRepositoryImpl$checkStatus).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - name: payment_id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Идентификатор платежа.
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/pix/get-last-payments:
+    get:
+      summary: Последние PIX-платежи
+      operationId: listLastPixPaymentsFromApk
+      tags:
+      - Payments
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_pix_payment/PixPaymentRepositoryImpl$getLastPayments).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/qpay/links:
+    post:
+      summary: Создать ссылку QPay
+      operationId: createQpayLinkFromApk
+      tags:
+      - Payments
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_qpay/QpayRepositoryImpl$getPaymentRedirectUrl).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+  /v1/qpay/check-status/{payment_id}:
+    get:
+      summary: Проверить статус QPay
+      operationId: checkQpayStatusFromApk
+      tags:
+      - Payments
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_qpay/QpayRepositoryImpl$checkPaymentStatus).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - name: payment_id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Идентификатор платежа.
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/payme/check-payment:
+    post:
+      summary: Проверить Payme-платёж
+      operationId: checkPaymePaymentFromApk
+      tags:
+      - Payments
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_payme/PaymeRepositoryImpl$checkPaymentStatus).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+  /v1/payme/create-payment-url:
+    post:
+      summary: Создать ссылку Payme
+      operationId: createPaymePaymentUrlFromApk
+      tags:
+      - Payments
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_payme/PaymeRepositoryImpl$getPaymentRedirectUrl).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+  /v2/mobile/code:
+    post:
+      summary: Запросить SMS-код
+      operationId: requestMobileCodeFromApk
+      tags:
+      - Auth
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_sms_auth/SmsAuthRepositoryImpl$requestCode).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+  /v1/mobile/mtsid:
+    post:
+      summary: Авторизация через МТС ID
+      operationId: startMtsIdAuthFromApk
+      tags:
+      - Auth
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_mts_auth/MtsAuthRepositoryImpl$socialAuth).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+  /v1/mobile/mtsidtoken:
+    post:
+      summary: Получить токены МТС ID
+      operationId: getMtsIdTokensFromApk
+      tags:
+      - Auth
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_mts_auth/MtsAuthRepositoryImpl$getMtsTokens).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+  /v1/mobile/mtsidverification:
+    post:
+      summary: Верификация МТС ID
+      operationId: verifyMtsIdFromApk
+      tags:
+      - Auth
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_mts_auth/MtsAuthRepositoryImpl$mtsIdVerification).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+  /v1/mobile/mosidverification:
+    post:
+      summary: Верификация Mos ID
+      operationId: verifyMosIdFromApk
+      tags:
+      - Auth
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_mos_id_auth/MosIdAuthRepositoryImpl$mosIdVerification).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+  /v1/mosid/sync:
+    post:
+      summary: Синхронизация Mos ID
+      operationId: syncMosIdFromApk
+      tags:
+      - Auth
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_mos_id_auth/MosIdAuthRepositoryImpl$mosIdSync).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+  /powerbank/v1/order/make:
+    post:
+      summary: Создать заказ повербанка
+      operationId: createPowerbankOrderFromApk
+      tags:
+      - Powerbank
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_pb_ordering/OrderingPbRepositoryImpl$orderPb).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+  /powerbank/v1/station:
+    get:
+      summary: Информация о станции повербанков
+      operationId: getPowerbankStationFromApk
+      tags:
+      - Powerbank
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_powerbank/PowerbankRepositoryImpl$getPowerStationInfo).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/bonuses/packets:
+    get:
+      summary: Пакеты бонусов
+      operationId: listBonusPacketsFromApk
+      tags:
+      - Payments
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_bonuses/BonusesRepositoryImpl$getBonuses).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/cities/by_coordinates:
+    get:
+      summary: Город по координатам
+      operationId: getCityByCoordinatesFromApk
+      tags:
+      - Zones
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_cities/CitiesRepositoryImpl$getCityByCoordinates).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/userproblems:
+    post:
+      summary: Отправить проблему пользователя
+      operationId: sendUserProblemFromApk
+      tags:
+      - Feedback
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_ordering/OrderingRepositoryImpl$sendUserProblemsReport).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+  /v1/vehiclefeedback:
+    post:
+      summary: Отправить отзыв о транспорте
+      operationId: sendVehicleFeedbackFromApk
+      tags:
+      - Feedback
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_vehicle_feedback/VehicleFeedbackRepositoryImpl).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+  /v1/profile/customInfoBar:
+    get:
+      summary: Кастомная информационная плашка профиля
+      operationId: getProfileCustomInfoBarFromApk
+      tags:
+      - Profile
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (feature_menu/CustomPlateRepository$getGetCustomInfoBar).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/profile/season-results:
+    get:
+      summary: Сезонные результаты профиля
+      operationId: getProfileSeasonResultsFromApk
+      tags:
+      - Profile
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_profile/ProfileRepositoryImpl).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/profile/repaydebt:
+    post:
+      summary: Погасить задолженность профиля
+      operationId: repayProfileDebtFromApk
+      tags:
+      - Payments
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_payment/PaymentRepositoryImpl$repayDebt).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+  /v2/bonuses/purchase:
+    post:
+      summary: Купить бонусный пакет
+      operationId: purchaseBonusPacketFromApk
+      tags:
+      - Payments
+      description: >-
+        Найдено статическим анализом APK ru.urentbike.app_1902_rs.apk (data_bonuses/BonusesRepositoryImpl$purchaseBonus).
+        HTTP-метод выведен из имени клиентского репозитория и REST-семантики;
+        параметры и схема ответа требуют подтверждения реальным трафиком.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
