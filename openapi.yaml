@@ -2,6 +2,9 @@ openapi: 3.1.0
 info:
   title: Urent API (Unofficial, Reverse-Engineered)
   version: 0.1.0
+  license:
+    name: MIT
+    url: https://opensource.org/license/mit/
   description: '⚠️ Неофициальная спецификация API Urent, составленная на основе анализа
     сетевого трафика мобильного приложения и пользовательских логов.
 
@@ -18,6 +21,13 @@ info:
     Эндпоинты/поля могут отличаться в разных регионах/версиях приложения.
 
     '
+externalDocs:
+  description: Swagger UI
+  url: https://harib0dev.github.io/Urent-API-Docs/
+x-documentation:
+  source: reverse-engineered traffic observations
+  safetyNote: Request signing algorithm and bypass techniques are intentionally undocumented.
+  schemaPolicy: Unknown response fields are kept via additionalProperties until confirmed.
 servers:
 - url: https://app.urentbike.ru/gatewayclient/api
   description: Production Gateway (observed)
@@ -125,6 +135,28 @@ components:
         example: '{"device":"iPhone"}'
       description: Служебная информация окружения (часто JSON-строка).
   schemas:
+    ObservedMetadata:
+      type: object
+      description: Метаданные наблюдения. Это расширение документации, а не поле API.
+      properties:
+        appVersion:
+          type: string
+          example: 1.91.0
+        platform:
+          type: string
+          enum:
+          - ios
+          - android
+          - unknown
+        region:
+          type: string
+          example: RU
+        confidence:
+          type: string
+          enum:
+          - high
+          - medium
+          - low
     ErrorResponse:
       type: object
       properties:
@@ -197,23 +229,159 @@ components:
       additionalProperties: true
     Transport:
       type: object
+      description: Наблюдаемая модель транспорта. Реальный ответ может содержать дополнительные поля модели, статуса и тарифа.
       properties:
         scooter_id:
           type: string
           example: S.123
+        id:
+          type: string
+          example: S.123
+        name:
+          type: string
+          example: '123'
         latitude:
           type: number
           format: double
+          example: 55.7558
         longitude:
           type: number
           format: double
+          example: 37.6173
         type:
+          type: string
+          example: scooter
+        model:
           type: string
           example: scooter
         battery_level:
           type: integer
           minimum: 0
           maximum: 100
+          example: 87
+      additionalProperties: true
+    TransportModel:
+      type: object
+      properties:
+        id:
+          type:
+          - string
+          - integer
+          example: scooter_basic
+        name:
+          type: string
+          example: Scooter
+        type:
+          type: string
+          example: scooter
+      additionalProperties: true
+    GeoPoint:
+      type: object
+      properties:
+        latitude:
+          type: number
+          format: double
+          example: 55.7558
+        longitude:
+          type: number
+          format: double
+          example: 37.6173
+    City:
+      type: object
+      properties:
+        id:
+          type:
+          - string
+          - integer
+          example: 1
+        name:
+          type: string
+          example: Москва
+        country:
+          type: string
+          example: RU
+      additionalProperties: true
+    Zone:
+      type: object
+      description: Геозона или ограничение на карте. Геометрия и свойства могут отличаться по типу зоны.
+      properties:
+        id:
+          type:
+          - string
+          - integer
+          example: zone_1
+        name:
+          type: string
+          example: Rental zone
+        type:
+          type: string
+          example: rent
+        color:
+          type: string
+          example: '#00AA66'
+        geometry:
+          type: object
+          additionalProperties: true
+      additionalProperties: true
+    PaymentOperation:
+      type: object
+      properties:
+        id:
+          type: string
+          example: op_123
+        amount:
+          type: number
+          example: 150
+        currency:
+          type: string
+          example: RUB
+        status:
+          type: string
+          example: success
+        created_at:
+          type: string
+          format: date-time
+      additionalProperties: true
+    Profile:
+      type: object
+      properties:
+        id:
+          type:
+          - string
+          - integer
+          example: user_123
+        phone:
+          type: string
+          description: Маскируйте реальное значение в публичных примерах.
+          example: '+70000000000'
+        name:
+          type: string
+          example: User
+        email:
+          type: string
+          format: email
+          example: user@example.com
+      additionalProperties: true
+    ReferralInfo:
+      type: object
+      properties:
+        code:
+          type: string
+          example: ABC123
+        invited_count:
+          type: integer
+          minimum: 0
+          example: 0
+      additionalProperties: true
+    CashbackBalance:
+      type: object
+      properties:
+        balance:
+          type: number
+          example: 0
+        currency:
+          type: string
+          example: RUB
       additionalProperties: true
     PaymentOptionsResponse:
       type: object
@@ -245,6 +413,29 @@ components:
           example: visa
         is_default:
           type: boolean
+      additionalProperties: true
+    PowerbankStation:
+      type: object
+      properties:
+        id:
+          type: string
+          example: station_123
+        latitude:
+          type: number
+          format: double
+          example: 55.7558
+        longitude:
+          type: number
+          format: double
+          example: 37.6173
+        available_powerbanks:
+          type: integer
+          minimum: 0
+          example: 4
+        free_slots:
+          type: integer
+          minimum: 0
+          example: 8
       additionalProperties: true
     PromocodeRequest:
       type: object
@@ -283,6 +474,7 @@ paths:
   /v1/order/make:
     post:
       summary: Старт аренды (создать заказ)
+      operationId: createRentalOrder
       tags:
       - Rental
       parameters:
@@ -335,6 +527,7 @@ paths:
   /v1/order/end:
     post:
       summary: Завершить аренду
+      operationId: endRentalOrder
       tags:
       - Rental
       parameters:
@@ -371,6 +564,7 @@ paths:
   /v1/orders/wait:
     post:
       summary: Пауза аренды
+      operationId: pauseRentalOrder
       tags:
       - Rental
       parameters:
@@ -406,6 +600,7 @@ paths:
   /v1/orders/continue:
     post:
       summary: Продолжить аренду (снять с паузы)
+      operationId: continueRentalOrder
       tags:
       - Rental
       parameters:
@@ -441,6 +636,7 @@ paths:
   /v2/order/photo:
     post:
       summary: Загрузить фото после завершения поездки
+      operationId: uploadOrderPhoto
       tags:
       - Rental
       parameters:
@@ -486,6 +682,7 @@ paths:
   /v6/transports:
     get:
       summary: Поиск транспорта в радиусе
+      operationId: listTransports
       tags:
       - Transports
       parameters:
@@ -568,6 +765,7 @@ paths:
   /v3/transports/S.{scooter_id}:
     get:
       summary: Информация о транспорте по ID
+      operationId: getTransportById
       tags:
       - Transports
       parameters:
@@ -603,6 +801,8 @@ paths:
   /v2/bikes/models:
     get:
       summary: Список моделей транспорта
+      operationId: listBikeModels
+      description: Возвращает наблюдаемый список моделей транспорта, доступных клиенту.
       tags:
       - Transports
       parameters:
@@ -623,8 +823,13 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  additionalProperties: true
+                  $ref: '#/components/schemas/TransportModel'
+              examples:
+                example:
+                  value:
+                  - id: scooter_basic
+                    name: Scooter
+                    type: scooter
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -632,6 +837,8 @@ paths:
   /v3/zones/uses:
     get:
       summary: Активные зоны сервиса
+      operationId: listActiveServiceZones
+      description: Возвращает зоны, которые клиент отображает как активные сервисные области.
       tags:
       - Zones
       parameters:
@@ -652,8 +859,13 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  additionalProperties: true
+                  $ref: '#/components/schemas/Zone'
+              examples:
+                example:
+                  value:
+                  - id: zone_1
+                    name: Service zone
+                    type: service
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -661,6 +873,8 @@ paths:
   /v3/zones/rent:
     get:
       summary: Зоны, где доступна аренда
+      operationId: listRentalZones
+      description: Возвращает зоны, в которых клиент разрешает старт или продолжение аренды.
       tags:
       - Zones
       parameters:
@@ -681,8 +895,13 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  additionalProperties: true
+                  $ref: '#/components/schemas/Zone'
+              examples:
+                example:
+                  value:
+                  - id: rent_1
+                    name: Rental zone
+                    type: rent
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -690,6 +909,8 @@ paths:
   /v5/zones/general:
     get:
       summary: Общие зоны/ограничения (например, скорость)
+      operationId: listGeneralZones
+      description: Возвращает общие геозоны и ограничения, например области сниженной скорости.
       tags:
       - Zones
       parameters:
@@ -710,8 +931,13 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  additionalProperties: true
+                  $ref: '#/components/schemas/Zone'
+              examples:
+                example:
+                  value:
+                  - id: slow_1
+                    name: Slow speed zone
+                    type: speed_limit
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -719,6 +945,8 @@ paths:
   /v1/location/geolocation:
     get:
       summary: Определение города по координатам
+      operationId: resolveLocationCity
+      description: Определяет город или регион обслуживания по переданным координатам.
       tags:
       - Zones
       parameters:
@@ -751,8 +979,13 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties: true
+                $ref: '#/components/schemas/City'
+              examples:
+                example:
+                  value:
+                    id: 1
+                    name: Москва
+                    country: RU
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -762,6 +995,8 @@ paths:
   /v1/profile:
     get:
       summary: Профиль пользователя
+      operationId: getProfile
+      description: Возвращает профиль авторизованного пользователя. Публичные примеры должны быть обезличены.
       tags:
       - Profile
       parameters:
@@ -780,8 +1015,14 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties: true
+                $ref: '#/components/schemas/Profile'
+              examples:
+                example:
+                  value:
+                    id: user_123
+                    phone: '+70000000000'
+                    name: User
+                    email: user@example.com
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -789,6 +1030,7 @@ paths:
   /v1/profile/device:
     post:
       summary: Привязать/обновить данные устройства
+      operationId: upsertProfileDevice
       tags:
       - Profile
       parameters:
@@ -835,6 +1077,7 @@ paths:
   /v1/profile/my/activegoals:
     get:
       summary: Активные аренды/цели
+      operationId: listActiveGoals
       tags:
       - Profile
       parameters:
@@ -864,6 +1107,7 @@ paths:
   /v1/profile/my/referralinfo:
     get:
       summary: Реферальная информация
+      operationId: getReferralInfo
       tags:
       - Profile
       parameters:
@@ -882,8 +1126,12 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties: true
+                $ref: '#/components/schemas/ReferralInfo'
+              examples:
+                example:
+                  value:
+                    code: ABC123
+                    invited_count: 0
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -891,6 +1139,7 @@ paths:
   /v1/profile/my/promoactions:
     get:
       summary: Доступные промоакции
+      operationId: listPromoActions
       tags:
       - Profile
       parameters:
@@ -920,6 +1169,7 @@ paths:
   /v1/profile/promocode:
     post:
       summary: Активация промокода
+      operationId: activatePromocode
       tags:
       - Profile
       parameters:
@@ -955,6 +1205,8 @@ paths:
   /v2/payment/operations:
     get:
       summary: История операций
+      operationId: listPaymentOperations
+      description: Возвращает историю платёжных операций пользователя. Не публикуйте реальные платёжные идентификаторы.
       tags:
       - Payments
       parameters:
@@ -975,8 +1227,14 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  additionalProperties: true
+                  $ref: '#/components/schemas/PaymentOperation'
+              examples:
+                example:
+                  value:
+                  - id: op_123
+                    amount: 150
+                    currency: RUB
+                    status: success
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -984,6 +1242,7 @@ paths:
   /v2/places/payment_options:
     get:
       summary: Способы оплаты (payment options)
+      operationId: getPaymentOptions
       tags:
       - Payments
       parameters:
@@ -1010,6 +1269,7 @@ paths:
   /v1/cards:
     get:
       summary: Получить привязанные карты
+      operationId: listCards
       tags:
       - Payments
       parameters:
@@ -1038,6 +1298,7 @@ paths:
   /v1/cards/withPendings:
     get:
       summary: Карты с незавершёнными операциями
+      operationId: listCardsWithPendings
       tags:
       - Payments
       parameters:
@@ -1066,6 +1327,7 @@ paths:
   /v1/cards/{card_id}:
     delete:
       summary: Удалить (отвязать) карту
+      operationId: deleteCard
       tags:
       - Payments
       parameters:
@@ -1103,6 +1365,7 @@ paths:
   /v1/payment/acquiring_settings:
     get:
       summary: Настройки эквайринга
+      operationId: getAcquiringSettings
       tags:
       - Payments
       parameters:
@@ -1130,6 +1393,7 @@ paths:
   /v2/payment/profile:
     get:
       summary: Платёжный профиль (в т.ч. промоистория)
+      operationId: getPaymentProfile
       tags:
       - Payments
       parameters:
@@ -1157,6 +1421,7 @@ paths:
   /v1/cloudpayments/card:
     post:
       summary: Привязать новую карту (CloudPayments)
+      operationId: createCloudPaymentsCard
       tags:
       - Payments
       parameters:
@@ -1196,7 +1461,8 @@ paths:
               properties:
                 card_number:
                   type: string
-                  example: '4242424242424242'
+                  description: Не публикуйте реальные номера карт. Значение в примере обезличено.
+                  example: '411111******1111'
                 exp_date:
                   type: string
                   example: 12/27
@@ -1206,6 +1472,7 @@ paths:
   /v1/cloudpayments/post3ds:
     post:
       summary: Завершить 3DS (CloudPayments)
+      operationId: completeCloudPayments3ds
       tags:
       - Payments
       parameters:
@@ -1251,6 +1518,7 @@ paths:
   /v1/subscriptions/my:
     get:
       summary: Моя активная подписка
+      operationId: getMySubscription
       tags:
       - Subscriptions
       parameters:
@@ -1278,6 +1546,7 @@ paths:
   /v3/subscriptions/get_availables:
     get:
       summary: Доступные подписки
+      operationId: listAvailableSubscriptions
       tags:
       - Subscriptions
       parameters:
@@ -1307,6 +1576,7 @@ paths:
   /v2/subscriptions/promo_banners:
     get:
       summary: Промо-баннеры подписок
+      operationId: listSubscriptionPromoBanners
       tags:
       - Subscriptions
       parameters:
@@ -1336,6 +1606,7 @@ paths:
   /v1/customerMinutePass/my:
     get:
       summary: Мои пакеты минут
+      operationId: listMyMinutePasses
       tags:
       - Subscriptions
       parameters:
@@ -1365,6 +1636,7 @@ paths:
   /v1/minutePass/availables:
     get:
       summary: Доступные пакеты минут
+      operationId: listAvailableMinutePasses
       tags:
       - Subscriptions
       parameters:
@@ -1394,6 +1666,7 @@ paths:
   /v1/CustomerDailyPass/my:
     get:
       summary: Мой Daily Pass
+      operationId: getMyDailyPass
       tags:
       - Subscriptions
       parameters:
@@ -1421,6 +1694,7 @@ paths:
   /powerbank/v1/activity:
     get:
       summary: Активные аренды повербанков
+      operationId: listPowerbankActivities
       tags:
       - Powerbank
       parameters:
@@ -1450,6 +1724,7 @@ paths:
   /powerbank/v1/models:
     get:
       summary: Модели повербанков
+      operationId: listPowerbankModels
       tags:
       - Powerbank
       parameters:
@@ -1479,6 +1754,7 @@ paths:
   /powerbank/v1/stations:
     get:
       summary: Станции повербанков (поиск)
+      operationId: listPowerbankStations
       tags:
       - Powerbank
       parameters:
@@ -1539,8 +1815,15 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  additionalProperties: true
+                  $ref: '#/components/schemas/PowerbankStation'
+              examples:
+                example:
+                  value:
+                  - id: station_123
+                    latitude: 55.7558
+                    longitude: 37.6173
+                    available_powerbanks: 4
+                    free_slots: 8
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1550,6 +1833,7 @@ paths:
   /v2/activity:
     get:
       summary: Лимиты/активность (например, max_rentals)
+      operationId: getActivityLimits
       tags:
       - Misc
       parameters:
@@ -1577,6 +1861,7 @@ paths:
   /v1/orders/aggregation:
     get:
       summary: Агрегация заказов (в т.ч. повербанк)
+      operationId: getOrdersAggregation
       tags:
       - Misc
       parameters:
@@ -1626,6 +1911,8 @@ paths:
   /v1/cities:
     get:
       summary: Список городов
+      operationId: listCities
+      description: Возвращает города, известные клиенту или доступные в регионе.
       tags:
       - Zones
       parameters:
@@ -1646,8 +1933,13 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  additionalProperties: true
+                  $ref: '#/components/schemas/City'
+              examples:
+                example:
+                  value:
+                  - id: 1
+                    name: Москва
+                    country: RU
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -1655,6 +1947,7 @@ paths:
   /v1/mobile/mtsidcheck:
     get:
       summary: Проверка MTS ID
+      operationId: checkMtsId
       tags:
       - Misc
       parameters:
@@ -1682,6 +1975,8 @@ paths:
   /payment/cashback-balance:
     get:
       summary: Баланс кэшбэка
+      operationId: getCashbackBalance
+      description: Возвращает текущий баланс кэшбэка пользователя.
       tags:
       - Payments
       parameters:
@@ -1700,8 +1995,12 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties: true
+                $ref: '#/components/schemas/CashbackBalance'
+              examples:
+                example:
+                  value:
+                    balance: 0
+                    currency: RUB
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -1709,6 +2008,7 @@ paths:
   /v1/places/my:
     get:
       summary: Место/депозит/лимиты (my place)
+      operationId: getMyPlace
       tags:
       - Payments
       parameters:
@@ -1736,6 +2036,7 @@ paths:
   /v1/weather/{locale}/{lat}/{lng}:
     get:
       summary: Погода (обнаружено в трафике)
+      operationId: getWeather
       tags:
       - Misc
       security: []
@@ -1783,6 +2084,7 @@ paths:
   /ws:
     get:
       summary: WebSocket подключение (realtime)
+      operationId: connectRealtimeWebSocket
       tags:
       - Realtime
       security: []
