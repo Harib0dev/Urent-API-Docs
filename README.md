@@ -13,10 +13,11 @@
 ## Что внутри
 
 - REST gateway: `https://app.urentbike.ru/gatewayclient/api`
-- 44 наблюдаемых HTTP/WebSocket операции
+- 67 наблюдаемых HTTP/WebSocket операций
 - группы эндпоинтов для аренды, транспорта, зон, профиля, платежей, подписок и повербанков
 - общие заголовки мобильного клиента: `ur-latitude`, `ur-longitude`, `ur-request-version`, `ur-request-data`, `environment-info`
 - Bearer JWT authorization scheme
+- отдельные наблюдения из Loon-сессий, без публикации сырых токенов и приватных данных
 - базовые схемы запросов, ответов и ошибок
 
 ## Ограничения

@@ -48,6 +48,18 @@ tags:
   description: Подписки и пакеты минут
 - name: Powerbank
   description: Повербанки
+- name: Auth
+  description: Авторизация и токены
+- name: Devices
+  description: Устройства и push-токены
+- name: Feedback
+  description: Оценки и обратная связь
+- name: Files
+  description: Статические файлы приложения
+- name: FeatureFlags
+  description: Флаги функций и эксперименты
+- name: Telemetry
+  description: Клиентская телеметрия
 - name: Misc
   description: Прочие эндпоинты
 - name: Realtime
@@ -436,6 +448,315 @@ components:
           type: integer
           minimum: 0
           example: 8
+      additionalProperties: true
+    ApiEnvelope:
+      type: object
+      description: Обёртка ответа, часто встречающаяся в наблюдаемом трафике.
+      properties:
+        succeeded:
+          type: boolean
+          example: true
+        errors:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        entries:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        data:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+      additionalProperties: true
+    Money:
+      type: object
+      properties:
+        value:
+          type: number
+          example: 150
+        value100:
+          type: integer
+          example: 15000
+        valueFormatted:
+          type: string
+          example: 150 ₽
+        valueFormattedWithoutZero:
+          type: string
+          example: 150 ₽
+        culture:
+          type: string
+          example: ru-RU
+      additionalProperties: true
+    IdentifierLocationRequest:
+      type: object
+      required:
+      - Identifier
+      properties:
+        Identifier:
+          type: string
+          example: ORD12345
+        locationLat:
+          type: number
+          format: double
+          example: 55.7558
+        locationLng:
+          type: number
+          format: double
+          example: 37.6173
+      additionalProperties: true
+    DeviceTokenRequest:
+      type: object
+      required:
+      - deviceToken
+      - deviceUniqueId
+      properties:
+        deviceToken:
+          type: string
+          description: Push-токен устройства. В публичных примерах должен быть заменён.
+          example: push_token_redacted
+        deviceUniqueId:
+          type: string
+          description: Идентификатор устройства. В публичных примерах должен быть заменён.
+          example: device_id_redacted
+        messagingApiType:
+          type: string
+          example: apns
+        locationLat:
+          type: number
+          format: double
+          example: 55.7558
+        locationLng:
+          type: number
+          format: double
+          example: 37.6173
+      additionalProperties: true
+    ConnectTokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: JWT access token. Не публикуйте реальные значения.
+          example: redacted.jwt.token
+        refresh_token:
+          type: string
+          description: Refresh token. Не публикуйте реальные значения.
+          example: refresh_token_redacted
+        expires_in:
+          type: integer
+          example: 3600
+        token_type:
+          type: string
+          example: Bearer
+        scope:
+          type: string
+          example: offline_access
+      additionalProperties: true
+    RateInfoResponse:
+      type: object
+      properties:
+        succeeded:
+          type: boolean
+          example: true
+        errors:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        transportId:
+          type: string
+          example: S.123
+        userAccountId:
+          type: string
+          example: user_123
+        withInsurance:
+          type: boolean
+        rate:
+          type: object
+          properties:
+            id:
+              type: string
+              example: basic
+            displayName:
+              type: string
+              example: Стандартный
+            rateType:
+              type: string
+              example: per_minute
+            periodMinute:
+              type: integer
+              example: 1
+            debit:
+              $ref: '#/components/schemas/Money'
+            activationCost:
+              $ref: '#/components/schemas/Money'
+            insuranceCost:
+              $ref: '#/components/schemas/Money'
+          additionalProperties: true
+      additionalProperties: true
+    OrderActionResponse:
+      type: object
+      description: Ответ на действия с активным заказом. В реальном ответе много вложенных полей заказа и activity.
+      properties:
+        succeeded:
+          type: boolean
+          example: true
+        result:
+          type: string
+          example: success
+        type:
+          type: string
+          example: order
+        activity:
+          type: object
+          additionalProperties: true
+        order:
+          type: object
+          additionalProperties: true
+        errors:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+      additionalProperties: true
+    OrderInfoResponse:
+      type: object
+      properties:
+        succeeded:
+          type: boolean
+          example: true
+        orderId:
+          type: string
+          example: ORD12345
+        transportIdentifier:
+          type: string
+          example: S.123
+        rateName:
+          type: string
+          example: Стандартный
+        rateType:
+          type: string
+          example: per_minute
+        summaryWithdrawn:
+          $ref: '#/components/schemas/Money'
+        rateWithdrawn:
+          $ref: '#/components/schemas/Money'
+        activation:
+          $ref: '#/components/schemas/Money'
+      additionalProperties: true
+    ProfileAggregatedResponse:
+      type: object
+      properties:
+        statisticsTripCount:
+          type: integer
+          example: 10
+        userRatingValue:
+          type: number
+          example: 4.9
+        verificationStatusString:
+          type: string
+          example: verified
+        isSubscriptionActive:
+          type: boolean
+        subscriptionName:
+          type: string
+          example: Premium
+      additionalProperties: true
+    VehicleFeedbackOption:
+      type: object
+      properties:
+        priority:
+          type: integer
+          example: 1
+        vehicleOverallRating:
+          type: object
+          properties:
+            key:
+              type: string
+              example: good
+            value:
+              type: string
+              example: Хорошо
+          additionalProperties: true
+        availableOptions:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+      additionalProperties: true
+    FlagrEvaluationBatchRequest:
+      type: object
+      properties:
+        entities:
+          type: array
+          items:
+            type: object
+            properties:
+              entityID:
+                type: string
+                example: user_redacted
+              entityContext:
+                type: object
+                additionalProperties: true
+            additionalProperties: true
+        flagKeys:
+          type: array
+          items:
+            type: string
+          example:
+          - example_flag
+      additionalProperties: true
+    FlagrEvaluationBatchResponse:
+      type: object
+      properties:
+        evaluationResults:
+          type: array
+          items:
+            type: object
+            properties:
+              flagID:
+                type: integer
+              flagKey:
+                type: string
+              flagSnapshotID:
+                type: integer
+              timestamp:
+                type: string
+                format: date-time
+              evalContext:
+                type: object
+                additionalProperties: true
+            additionalProperties: true
+      additionalProperties: true
+    TelemetryEvent:
+      type: object
+      description: Клиентское событие логирования. Наблюдаемые payload могут содержать персональные поля; реальные значения нельзя публиковать.
+      properties:
+        action:
+          type: string
+        app_version:
+          type: string
+          example: 1.80.0
+        app_build_number:
+          type: string
+          example: '7'
+        facility:
+          type: string
+        level:
+          type: integer
+        message:
+          type: string
+        user_id:
+          type: string
+          description: Должен быть обезличен.
+          example: user_redacted
+        session_id:
+          type: string
+          description: Должен быть обезличен.
+          example: session_redacted
       additionalProperties: true
     PromocodeRequest:
       type: object
@@ -2033,6 +2354,993 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
+  /v1/connect/token:
+    post:
+      summary: Получить пару access/refresh token
+      operationId: createConnectToken
+      tags:
+      - Auth
+      security: []
+      description: Наблюдалось в Loon-сессии 2025-09-22. Тело запроса не фиксируется
+        в публичной спецификации, чтобы не публиковать секреты/учётные данные.
+      parameters:
+      - *id001
+      - *id002
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectTokenResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /v1/devices/my/token:
+    post:
+      summary: Обновить push-токен устройства
+      operationId: updateMyDeviceToken
+      tags:
+      - Devices
+      description: Наблюдалось в Loon-сессии 2025-09-22. Значения deviceToken/deviceUniqueId
+        должны быть обезличены в публичных примерах.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceTokenRequest'
+  /v1/order/wait:
+    post:
+      summary: Пауза аренды (singular path)
+      operationId: pauseRentalOrderSingular
+      tags:
+      - Rental
+      description: В Loon-сессии 2025-09-22 наблюдался путь `/v1/order/wait`.
+        В старых материалах также встречается `/v1/orders/wait`.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderActionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IdentifierLocationRequest'
+  /v1/order/resume:
+    post:
+      summary: Продолжить аренду (resume)
+      operationId: resumeRentalOrder
+      tags:
+      - Rental
+      description: В Loon-сессии 2025-09-22 наблюдался путь `/v1/order/resume`.
+        В старых материалах также встречается `/v1/orders/continue`.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderActionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IdentifierLocationRequest'
+  /v2/order/end:
+    post:
+      summary: Завершить аренду (v2)
+      operationId: endRentalOrderV2
+      tags:
+      - Rental
+      description: V2-вариант завершения аренды, наблюдался в Loon-сессии 2025-09-22.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderActionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IdentifierLocationRequest'
+  /v1/order/verify/S.{scooter_id}:
+    get:
+      summary: Проверить возможность старта аренды
+      operationId: verifyRentalOrderByTransport
+      tags:
+      - Rental
+      description: >-
+        Проверяет транспорт перед стартом аренды: тариф, заряд, страховку
+        и состояние геолокации. Наблюдалось в Loon-сессии 2025-09-22.
+      parameters:
+      - name: scooter_id
+        in: path
+        required: true
+        schema:
+          type: string
+          example: '123'
+      - name: latitude
+        in: query
+        required: true
+        schema:
+          type: number
+          format: double
+          example: 55.7558
+      - name: longitude
+        in: query
+        required: true
+        schema:
+          type: number
+          format: double
+          example: 37.6173
+      - name: accuracy
+        in: query
+        required: false
+        schema:
+          type: number
+          example: 20
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateInfoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/orderinfo/{order_id}/info:
+    get:
+      summary: Детали завершённого/активного заказа
+      operationId: getOrderInfo
+      tags:
+      - Rental
+      description: Возвращает финансовые и тарифные детали заказа. Наблюдалось
+        в Loon-сессии 2025-09-22.
+      parameters:
+      - name: order_id
+        in: path
+        required: true
+        schema:
+          type: string
+          example: ORD12345
+      - name: locationLat
+        in: query
+        required: false
+        schema:
+          type: number
+          format: double
+          example: 55.7558
+      - name: locationLng
+        in: query
+        required: false
+        schema:
+          type: number
+          format: double
+          example: 37.6173
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderInfoResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/profile/rate/S.{scooter_id}:
+    get:
+      summary: Тариф для транспорта
+      operationId: getProfileRateByTransport
+      tags:
+      - Profile
+      description: Возвращает тарифные условия для конкретного транспорта. В сессии
+        2025-09-22 этот эндпоинт встречался чаще всего среди gateway-запросов.
+      parameters:
+      - name: scooter_id
+        in: path
+        required: true
+        schema:
+          type: string
+          example: '123'
+      - name: locationLat
+        in: query
+        required: false
+        schema:
+          type: number
+          format: double
+          example: 55.7558
+      - name: locationLng
+        in: query
+        required: false
+        schema:
+          type: number
+          format: double
+          example: 37.6173
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateInfoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/profile/aggregated:
+    get:
+      summary: Агрегированная информация профиля
+      operationId: getProfileAggregated
+      tags:
+      - Profile
+      description: >-
+        Возвращает краткую агрегированную информацию: статистику поездок,
+        рейтинг, статус верификации и подписку.
+      parameters:
+      - name: locationLat
+        in: query
+        required: false
+        schema:
+          type: number
+          format: double
+          example: 55.7558
+      - name: locationLng
+        in: query
+        required: false
+        schema:
+          type: number
+          format: double
+          example: 37.6173
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileAggregatedResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/profile/my/goals:
+    get:
+      summary: Цели профиля по заказу
+      operationId: getProfileGoals
+      tags:
+      - Profile
+      description: Похож на activegoals, но в наблюдении принимал `orderId` как query-параметр.
+      parameters:
+      - name: orderId
+        in: query
+        required: false
+        schema:
+          type: string
+          example: ORD12345
+      - name: locationLat
+        in: query
+        required: false
+        schema:
+          type: number
+          format: double
+          example: 55.7558
+      - name: locationLng
+        in: query
+        required: false
+        schema:
+          type: number
+          format: double
+          example: 37.6173
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/profile/warning:
+    get:
+      summary: Предупреждение профиля/региона
+      operationId: getProfileWarning
+      tags:
+      - Profile
+      description: Возвращает текст предупреждения для текущего места/региона.
+      parameters:
+      - name: placeCode
+        in: query
+        required: false
+        schema:
+          type: string
+          example: RU
+      - name: locationLat
+        in: query
+        required: false
+        schema:
+          type: number
+          format: double
+          example: 55.7558
+      - name: locationLng
+        in: query
+        required: false
+        schema:
+          type: number
+          format: double
+          example: 37.6173
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  text:
+                    type: string
+                additionalProperties: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/vehiclefeedback/options:
+    get:
+      summary: Опции обратной связи по транспорту
+      operationId: listVehicleFeedbackOptions
+      tags:
+      - Feedback
+      description: Возвращает варианты оценки/обратной связи для транспорта.
+      parameters:
+      - name: vehicleType
+        in: query
+        required: true
+        schema:
+          type: string
+          example: scooter
+      - name: locationLat
+        in: query
+        required: false
+        schema:
+          type: number
+          format: double
+          example: 55.7558
+      - name: locationLng
+        in: query
+        required: false
+        schema:
+          type: number
+          format: double
+          example: 37.6173
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VehicleFeedbackOption'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v1/customerAbonements/my:
+    get:
+      summary: Мои абонементы
+      operationId: listMyCustomerAbonements
+      tags:
+      - Subscriptions
+      description: Наблюдалось в Loon-сессии 2025-09-22. Название пути содержит
+        `Abonements`, как в клиентском запросе.
+      parameters:
+      - name: locationLat
+        in: query
+        required: false
+        schema:
+          type: number
+          format: double
+          example: 55.7558
+      - name: locationLng
+        in: query
+        required: false
+        schema:
+          type: number
+          format: double
+          example: 37.6173
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v2/minutePass/availables:
+    get:
+      summary: Доступные пакеты минут (v2)
+      operationId: listAvailableMinutePassesV2
+      tags:
+      - Subscriptions
+      description: V2-вариант списка пакетов минут, наблюдался в Loon-сессии 2025-09-22.
+      parameters:
+      - name: cityId
+        in: query
+        required: false
+        schema:
+          type: string
+          example: city_1
+      - name: locationLat
+        in: query
+        required: false
+        schema:
+          type: number
+          format: double
+          example: 55.7558
+      - name: locationLng
+        in: query
+        required: false
+        schema:
+          type: number
+          format: double
+          example: 37.6173
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v2/subscriptions/my:
+    get:
+      summary: Моя активная подписка (v2)
+      operationId: getMySubscriptionV2
+      tags:
+      - Subscriptions
+      description: V2-вариант подписок пользователя, наблюдался в Loon-сессии 2025-09-22.
+      parameters:
+      - name: locationLat
+        in: query
+        required: false
+        schema:
+          type: number
+          format: double
+          example: 55.7558
+      - name: locationLng
+        in: query
+        required: false
+        schema:
+          type: number
+          format: double
+          example: 37.6173
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v5/subscriptions/get_availables:
+    get:
+      summary: Доступные подписки (v5)
+      operationId: listAvailableSubscriptionsV5
+      tags:
+      - Subscriptions
+      description: V5-вариант списка подписок. Наблюдался с query-параметром `brand`.
+      parameters:
+      - name: brand
+        in: query
+        required: false
+        schema:
+          type: string
+          example: urent
+      - name: locationLat
+        in: query
+        required: false
+        schema:
+          type: number
+          format: double
+          example: 55.7558
+      - name: locationLng
+        in: query
+        required: false
+        schema:
+          type: number
+          format: double
+          example: 37.6173
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v3/subscriptions/promo_banners:
+    get:
+      summary: Промо-баннеры подписок (v3)
+      operationId: listSubscriptionPromoBannersV3
+      tags:
+      - Subscriptions
+      description: V3-вариант промо-баннеров подписок, наблюдался в Loon-сессии 2025-09-22.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v4/subscriptions/promo_banners:
+    get:
+      summary: Промо-баннеры подписок (v4)
+      operationId: listSubscriptionPromoBannersV4
+      tags:
+      - Subscriptions
+      description: V4-вариант промо-баннеров подписок, наблюдался в Loon-сессии 2025-09-22.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /powerbank/v1/nearest:
+    get:
+      summary: Ближайшая станция повербанков
+      operationId: getNearestPowerbankStation
+      tags:
+      - Powerbank
+      description: >-
+        Возвращает ближайшую станцию повербанков или `station: null`.
+      parameters:
+      - name: latitude
+        in: query
+        required: true
+        schema:
+          type: number
+          format: double
+          example: 55.7558
+      - name: longitude
+        in: query
+        required: true
+        schema:
+          type: number
+          format: double
+          example: 37.6173
+      - name: locationLat
+        in: query
+        required: true
+        schema:
+          type: number
+          format: double
+          example: 55.7558
+      - name: locationLng
+        in: query
+        required: true
+        schema:
+          type: number
+          format: double
+          example: 37.6173
+      - name: radiusbymeters
+        in: query
+        required: false
+        schema:
+          type: integer
+          example: 500
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  succeeded:
+                    type: boolean
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties: true
+                  station:
+                    oneOf:
+                    - $ref: '#/components/schemas/PowerbankStation'
+                    - type: 'null'
+                additionalProperties: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /v3/transports/s.{scooter_id}:
+    get:
+      summary: Информация о транспорте по ID (lowercase s)
+      operationId: getTransportByLowercaseId
+      tags:
+      - Transports
+      description: В Loon-сессии 2025-09-22 наблюдался lowercase-вариант пути
+        `/v3/transports/s.{id}`. Схема ответа близка к `/v3/transports/S.{id}`.
+      parameters:
+      - name: scooter_id
+        in: path
+        required: true
+        schema:
+          type: string
+          example: '123'
+      - name: isQrCode
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: useBluetooth
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: withEBikes
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - *id001
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      - *id006
+      - *id007
+      - *id008
+      - *id009
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transport'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /file/{date}/{file_name}:
+    get:
+      summary: Статический файл приложения
+      operationId: getAppFile
+      tags:
+      - Files
+      security: []
+      servers:
+      - url: https://app.urentbike.ru
+        description: App static files host
+      description: Наблюдалась загрузка PNG-файла с `app.urentbike.ru/file/...`.
+      parameters:
+      - name: date
+        in: path
+        required: true
+        schema:
+          type: string
+          example: '20250912'
+      - name: file_name
+        in: path
+        required: true
+        schema:
+          type: string
+          example: image.png
+      responses:
+        '200':
+          description: File content
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /flagr/api/v1/evaluation/batch:
+    post:
+      summary: Batch evaluation feature flags
+      operationId: evaluateFeatureFlagsBatch
+      tags:
+      - FeatureFlags
+      security: []
+      servers:
+      - url: https://app.urentbike.ru
+        description: Observed app host
+      - url: https://backyard.urentbike.ru
+        description: Observed backyard host
+      description: Наблюдался batch-запрос к Flagr для флагов функций/экспериментов.
+        Идентификаторы сущностей должны быть обезличены.
+      parameters:
+      - *id001
+      - *id002
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlagrEvaluationBatchResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlagrEvaluationBatchRequest'
+  /:
+    post:
+      summary: Отправить клиентскую телеметрию
+      operationId: sendTelemetryEvents
+      tags:
+      - Telemetry
+      security: []
+      servers:
+      - url: https://lg.service.urentbike.ru
+        description: Observed telemetry host
+      description: Наблюдалось большое количество POST-запросов к лог-сервису.
+        Payload может содержать персональные поля, поэтому спецификация описывает
+        только обезличенную форму события.
+      parameters:
+      - *id001
+      - *id002
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/TelemetryEvent'
   /v1/weather/{locale}/{lat}/{lng}:
     get:
       summary: Погода (обнаружено в трафике)
@@ -2088,6 +3396,9 @@ paths:
       tags:
       - Realtime
       security: []
+      servers:
+      - url: https://notification.service.urentbike.ru
+        description: Observed notification WebSocket host
       parameters:
       - name: authtoken
         in: query
@@ -2102,6 +3413,8 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
-      description: Наблюдалось подключение вида `/ws?authtoken=<JWT>`. Формат сообщений
-        зависит от клиента/версии и не стандартизирован в OpenAPI.
+      description: >-
+        Наблюдалось подключение вида `/ws?authtoken=<JWT>` и WebSocket upgrade
+        на notification-хосте. Формат сообщений зависит от клиента/версии и не
+        стандартизирован в OpenAPI.
       x-websocket: true
